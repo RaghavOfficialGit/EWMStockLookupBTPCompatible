@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <title>EWM Warehouse Stock Lookup</title>
+    
+    <!-- SAP UI5 Bootstrap -->
+    <script
+        id="sap-ui-bootstrap"
+        src="https://sapui5.hana.ondemand.com/resources/sap-ui-core.js"
+        data-sap-ui-theme="sap_horizon"
+        data-sap-ui-compatVersion="edge"
+        data-sap-ui-async="true"
+        data-sap-ui-frameOptions="trusted"
+        data-sap-ui-resourceroots='{"ewm.stock.lookup": "./"}'
+        data-sap-ui-oninit="module:sap/ui/core/ComponentSupport">
+    </script>
+    
+    <style>
+        /* Loading indicator styling */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #content {
+            height: 100%;
+        }
+        
+        .sapUiBody {
+            background-color: #f7f7f7;
+        }
+    </style>
+</head>
+<body class="sapUiBody" id="content">
+    <!-- Fiori Elements Application Container -->
+    <div
+        data-sap-ui-component
+        data-name="ewm.stock.lookup"
+        data-id="container"
+        data-settings='{"id": "ewm.stock.lookup"}'
+        data-handle-validation="true"
+        style="height: 100%">
+    </div>
+    
+    <!-- Loading indicator shown during bootstrap -->
+    <noscript>
+        <div style="padding: 20px; text-align: center;">
+            <h2>JavaScript Required</h2>
+            <p>This application requires JavaScript to be enabled.</p>
+        </div>
+    </noscript>
+</body>
+</html>
