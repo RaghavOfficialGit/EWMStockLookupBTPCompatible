@@ -1,0 +1,25 @@
+{
+  "welcomeFile": "/stock-lookup/index.html",
+  "authenticationMethod": "route",
+  "routes": [
+    {
+      "source": "^/stock/(.*)$",
+      "target": "/stock/$1",
+      "destination": "srv-api",
+      "authenticationType": "xsuaa",
+      "csrfProtection": false
+    },
+    {
+      "source": "^/stock-lookup/(.*)$",
+      "target": "/$1",
+      "localDir": "stock-lookup/webapp",
+      "authenticationType": "xsuaa"
+    },
+    {
+      "source": "^(.*)$",
+      "target": "$1",
+      "service": "html5-apps-repo-rt",
+      "authenticationType": "xsuaa"
+    }
+  ]
+}

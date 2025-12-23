@@ -1,0 +1,10 @@
+.env
+*.env
+node_modules/
+dist/
+gen/
+mta_archives/
+*.mtar
+*.log
+.DS_Store
+Thumbs.db

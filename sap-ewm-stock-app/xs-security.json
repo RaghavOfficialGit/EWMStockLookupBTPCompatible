@@ -1,0 +1,42 @@
+{
+  "xsappname": "sap-ewm-stock-lookup",
+  "tenant-mode": "dedicated",
+  "description": "Security profile for EWM Warehouse Stock Lookup application",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.StockViewer",
+      "description": "View warehouse stock data"
+    },
+    {
+      "name": "uaa.user",
+      "description": "UAA User"
+    }
+  ],
+  "attributes": [],
+  "role-templates": [
+    {
+      "name": "StockViewer",
+      "description": "View warehouse physical stock records",
+      "scope-references": [
+        "$XSAPPNAME.StockViewer"
+      ],
+      "attribute-references": []
+    }
+  ],
+  "role-collections": [
+    {
+      "name": "EWM_Stock_Viewer",
+      "description": "Users who can view warehouse physical stock data",
+      "role-template-references": [
+        "$XSAPPNAME.StockViewer"
+      ]
+    }
+  ],
+  "oauth2-configuration": {
+    "token-validity": 900,
+    "redirect-uris": [
+      "https://*.cfapps.*.hana.ondemand.com/**",
+      "https://*.hana.ondemand.com/**"
+    ]
+  }
+}
