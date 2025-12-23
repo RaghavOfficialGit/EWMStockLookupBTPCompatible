@@ -1,10 +1,10 @@
 {
-  "_version": "1.59.0",
+  "_version": "1.49.0",
   "sap.app": {
     "id": "ewm.stock.lookup",
     "type": "application",
-    "title": "{{appTitle}}",
-    "description": "{{appDescription}}",
+    "title": "EWM Stock Lookup",
+    "description": "Warehouse Physical Stock Inquiry",
     "applicationVersion": {
       "version": "1.0.0"
     },
@@ -13,36 +13,13 @@
         "uri": "/stock/",
         "type": "OData",
         "settings": {
-          "odataVersion": "4.0",
-          "localUri": "localService/metadata.xml"
-        }
-      }
-    },
-    "crossNavigation": {
-      "inbounds": {
-        "stockLookup-display": {
-          "signature": {
-            "parameters": {},
-            "additionalParameters": "allowed"
-          },
-          "semanticObject": "WarehouseStock",
-          "action": "lookup",
-          "title": "{{appTitle}}",
-          "icon": "sap-icon://inventory"
+          "odataVersion": "4.0"
         }
       }
     }
   },
   "sap.ui": {
     "technology": "UI5",
-    "icons": {
-      "icon": "sap-icon://inventory",
-      "favIcon": "",
-      "phone": "",
-      "phone@2": "",
-      "tablet": "",
-      "tablet@2": ""
-    },
     "deviceTypes": {
       "desktop": true,
       "tablet": true,
@@ -52,11 +29,10 @@
   "sap.ui5": {
     "flexEnabled": true,
     "dependencies": {
-      "minUI5Version": "1.120.0",
+      "minUI5Version": "1.108.0",
       "libs": {
         "sap.m": {},
         "sap.ui.core": {},
-        "sap.ushell": {},
         "sap.fe.templates": {}
       }
     },
@@ -78,17 +54,11 @@
       }
     },
     "routing": {
-      "config": {},
       "routes": [
         {
           "pattern": ":?query:",
           "name": "WarehousePhysicalStockList",
           "target": "WarehousePhysicalStockList"
-        },
-        {
-          "pattern": "WarehousePhysicalStock({key}):?query:",
-          "name": "WarehousePhysicalStockObjectPage",
-          "target": "WarehousePhysicalStockObjectPage"
         }
       ],
       "targets": {
@@ -100,146 +70,15 @@
             "settings": {
               "contextPath": "/WarehousePhysicalStock",
               "variantManagement": "Page",
-              "navigation": {
-                "WarehousePhysicalStock": {
-                  "detail": {
-                    "route": "WarehousePhysicalStockObjectPage"
-                  }
-                }
-              },
+              "initialLoad": "Disabled",
               "controlConfiguration": {
                 "@com.sap.vocabularies.UI.v1.LineItem": {
                   "tableSettings": {
                     "type": "ResponsiveTable",
-                    "selectionMode": "None",
-                    "enableExport": true,
-                    "enableFullScreen": true,
-                    "enablePaste": false,
-                    "condensedTableLayout": true,
-                    "personalization": {
-                      "column": true,
-                      "filter": true,
-                      "sort": true
-                    }
-                  },
-                  "columns": {
-                    "DataField::Product": {
-                      "width": "10rem"
-                    },
-                    "DataField::EWMWarehouse": {
-                      "width": "6rem"
-                    },
-                    "DataField::EWMStockType": {
-                      "width": "6rem"
-                    },
-                    "DataField::EWMStorageBin": {
-                      "width": "10rem"
-                    },
-                    "DataField::EWMStockQuantityInBaseUnit": {
-                      "width": "8rem"
-                    },
-                    "DataField::EWMStockQuantityBaseUnit": {
-                      "width": "5rem"
-                    }
+                    "selectionMode": "None"
                   }
-                },
-                "@com.sap.vocabularies.UI.v1.SelectionFields": {
-                  "filterFields": {
-                    "Product": {
-                      "label": "Product",
-                      "settings": {
-                        "operatorConfiguration": [
-                          {
-                            "path": "key",
-                            "equals": "EQ",
-                            "exclude": false
-                          }
-                        ]
-                      }
-                    },
-                    "EWMStockType": {
-                      "label": "Stock Type",
-                      "settings": {
-                        "operatorConfiguration": [
-                          {
-                            "path": "key",
-                            "equals": "EQ",
-                            "exclude": false
-                          }
-                        ]
-                      }
-                    },
-                    "Batch": {
-                      "label": "Batch",
-                      "settings": {
-                        "operatorConfiguration": [
-                          {
-                            "path": "key",
-                            "equals": "EQ",
-                            "exclude": false
-                          }
-                        ]
-                      }
-                    },
-                    "HandlingUnitNumber": {
-                      "label": "Handling Unit",
-                      "settings": {
-                        "operatorConfiguration": [
-                          {
-                            "path": "key",
-                            "equals": "EQ",
-                            "exclude": false
-                          }
-                        ]
-                      }
-                    },
-                    "EWMStorageBin": {
-                      "label": "Storage Bin",
-                      "settings": {
-                        "operatorConfiguration": [
-                          {
-                            "path": "key",
-                            "equals": "EQ",
-                            "exclude": false
-                          }
-                        ]
-                      }
-                    }
-                  },
-                  "layout": "CompactFilters",
-                  "initialLayout": "Visual",
-                  "useSemanticDateRange": false
                 }
-              },
-              "initialLoad": "Disabled",
-              "views": {
-                "paths": [
-                  {
-                    "primary": [
-                      {
-                        "annotationPath": "com.sap.vocabularies.UI.v1.SelectionVariant"
-                      }
-                    ],
-                    "secondary": [
-                      {
-                        "annotationPath": "com.sap.vocabularies.UI.v1.LineItem"
-                      }
-                    ],
-                    "defaultPath": "both"
-                  }
-                ]
               }
-            }
-          }
-        },
-        "WarehousePhysicalStockObjectPage": {
-          "type": "Component",
-          "id": "WarehousePhysicalStockObjectPage",
-          "name": "sap.fe.templates.ObjectPage",
-          "options": {
-            "settings": {
-              "editableHeaderContent": false,
-              "contextPath": "/WarehousePhysicalStock"
             }
           }
         }
@@ -249,13 +88,5 @@
       "compact": true,
       "cozy": true
     }
-  },
-  "sap.fiori": {
-    "registrationIds": [],
-    "archeType": "transactional"
-  },
-  "sap.cloud": {
-    "public": true,
-    "service": "sap-ewm-stock-lookup"
   }
 }
