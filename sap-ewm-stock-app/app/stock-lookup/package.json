@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "EWM Stock Lookup Fiori App",
   "main": "webapp/index.html",
+  "engines": {
+    "node": "^20"
+  },
   "scripts": {
     "start": "fiori run --open 'index.html'",
     "build": "ui5 build --config=ui5.yaml --clean-dest --dest dist"

@@ -2,9 +2,11 @@
   "name": "sap-ewm-stock-lookup",
   "version": "1.0.0",
   "description": "SAP BTP CAP Application for EWM Warehouse Physical Stock Lookup",
-  "repository": "",
   "license": "UNLICENSED",
   "private": true,
+  "engines": {
+    "node": "^20"
+  },
   "dependencies": {
     "@sap/cds": "^7",
     "@sap-cloud-sdk/http-client": "^3",
