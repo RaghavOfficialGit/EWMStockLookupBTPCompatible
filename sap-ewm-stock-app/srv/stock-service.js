@@ -1,12 +1,7 @@
 const cds = require('@sap/cds');
-const { executeHttpRequest } = require('@sap-cloud-sdk/http-client');
-const { getDestination } = require('@sap-cloud-sdk/connectivity');
 
 // SAP EWM API endpoint path
 const EWM_API_PATH = '/sap/opu/odata4/sap/api_whse_physstockprod/srvd_a2x/sap/whsephysicalstockproducts/0001/WarehousePhysicalStockProducts';
-
-// Destination name configured in BTP
-const DESTINATION_NAME = 'EWM_HMF';
 
 /**
  * Build OData $filter string from query parameters
@@ -45,6 +40,9 @@ function extractFilters(query) {
 
 module.exports = cds.service.impl(async function() {
     const { WarehousePhysicalStock } = this.entities;
+    
+    // Connect to external EWM service via destination
+    const ewmService = await cds.connect.to('EWM_HMF');
 
     this.on('READ', WarehousePhysicalStock, async (req) => {
         try {
@@ -69,15 +67,6 @@ module.exports = cds.service.impl(async function() {
                 queryParams['$filter'] = filterExpr;
             }
 
-            // Get destination from BTP
-            console.log('[StockService] Resolving destination:', DESTINATION_NAME);
-            const destination = await getDestination({ destinationName: DESTINATION_NAME });
-            
-            if (!destination) {
-                console.error('[StockService] Destination not found');
-                return req.error(502, `Destination '${DESTINATION_NAME}' not found`);
-            }
-
             // Build query string
             const queryString = Object.entries(queryParams)
                 .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
@@ -86,26 +75,28 @@ module.exports = cds.service.impl(async function() {
             const fullPath = `${EWM_API_PATH}?${queryString}`;
             console.log('[StockService] Calling API:', fullPath);
 
-            // Execute HTTP request to SAP EWM API
-            const response = await executeHttpRequest(destination, {
+            // Execute request via destination
+            const response = await ewmService.send({
                 method: 'GET',
-                url: fullPath,
+                path: fullPath,
                 headers: {
                     'Accept': 'application/json'
                 }
             });
 
-            console.log('[StockService] Response status:', response.status);
+            console.log('[StockService] Response received');
 
-            if (response.status === 200 && response.data) {
-                const data = response.data.value || [];
-                const totalCount = response.data['@odata.count'] || 0;
+            // Process response
+            if (response) {
+                const data = response.value || response || [];
+                const totalCount = response['@odata.count'] || data.length || 0;
                 
-                console.log('[StockService] Records:', data.length, 'Total:', totalCount);
+                console.log('[StockService] Records:', Array.isArray(data) ? data.length : 1, 'Total:', totalCount);
 
                 // Transform data to match our entity structure
-                const result = data.map((item, idx) => ({
-                    ID: `${item.Product}_${item.EWMWarehouse}_${item.EWMStorageBin}_${skip + idx}`,
+                const dataArray = Array.isArray(data) ? data : [data];
+                const result = dataArray.map((item, idx) => ({
+                    ID: `${item.Product || ''}_${item.EWMWarehouse || ''}_${item.EWMStorageBin || ''}_${skip + idx}`,
                     Product: item.Product || '',
                     EWMWarehouse: item.EWMWarehouse || '',
                     EWMStockType: item.EWMStockType || '',
@@ -126,17 +117,13 @@ module.exports = cds.service.impl(async function() {
         } catch (error) {
             console.error('[StockService] Error:', error.message);
             
-            if (error.response) {
-                const status = error.response.status;
-                if (status === 401 || status === 403) {
-                    return req.error(401, 'Authentication failed. Check destination credentials.');
-                } else if (status === 404) {
-                    return req.error(404, 'API endpoint not found.');
-                }
-                return req.error(status, `API Error: ${error.message}`);
+            if (error.code === 401 || error.code === 403) {
+                return req.error(401, 'Authentication failed. Check destination credentials.');
+            } else if (error.code === 404) {
+                return req.error(404, 'API endpoint not found.');
             }
             
-            return req.error(500, `Internal error: ${error.message}`);
+            return req.error(500, `Error: ${error.message}`);
         }
     });
 });
