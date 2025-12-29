@@ -16,11 +16,12 @@
   },
   "scripts": {
     "start": "cds-serve",
-    "watch": "cds watch",
+    "watch": "cds watch --profile hybrid",
     "build": "cds build --production"
   },
   "cds": {
     "requires": {
+      "db": false,
       "EWM_HMF": {
         "kind": "rest",
         "credentials": {

@@ -6,6 +6,7 @@
     "version": "v4"
   },
   "requires": {
+    "db": false,
     "[production]": {
       "auth": "xsuaa"
     },
