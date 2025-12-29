@@ -4,7 +4,7 @@
   "description": "EWM Stock Lookup Fiori App",
   "main": "webapp/index.html",
   "engines": {
-    "node": "^20"
+    "node": ">=20"
   },
   "scripts": {
     "start": "fiori run --open 'index.html'",

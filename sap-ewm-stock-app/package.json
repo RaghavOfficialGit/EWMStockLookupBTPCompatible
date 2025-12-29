@@ -5,16 +5,14 @@
   "license": "UNLICENSED",
   "private": true,
   "engines": {
-    "node": "^20"
+    "node": ">=20"
   },
   "dependencies": {
-    "@sap/cds": "^7",
-    "@sap-cloud-sdk/http-client": "^3",
-    "@sap-cloud-sdk/connectivity": "^3",
+    "@sap/cds": "^9",
     "express": "^4"
   },
   "devDependencies": {
-    "@sap/cds-dk": "^7"
+    "@sap/cds-dk": "^9"
   },
   "scripts": {
     "start": "cds-serve",
@@ -23,6 +21,12 @@
   },
   "cds": {
     "requires": {
+      "EWM_HMF": {
+        "kind": "rest",
+        "credentials": {
+          "destination": "EWM_HMF"
+        }
+      },
       "auth": {
         "[production]": {
           "strategy": "JWT"
