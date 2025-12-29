@@ -1,17 +1,5 @@
 {
-  "build": {
-    "target": "."
-  },
   "odata": {
     "version": "v4"
-  },
-  "requires": {
-    "db": false,
-    "[production]": {
-      "auth": "xsuaa"
-    },
-    "[development]": {
-      "auth": "dummy"
-    }
   }
 }

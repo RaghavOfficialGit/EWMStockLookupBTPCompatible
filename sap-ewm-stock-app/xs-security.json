@@ -1,19 +1,6 @@
 {
   "xsappname": "sap-ewm-stock-lookup",
   "tenant-mode": "dedicated",
-  "scopes": [
-    {
-      "name": "$XSAPPNAME.StockViewer",
-      "description": "View warehouse stock data"
-    }
-  ],
-  "role-templates": [
-    {
-      "name": "StockViewer",
-      "description": "View warehouse physical stock records",
-      "scope-references": [
-        "$XSAPPNAME.StockViewer"
-      ]
-    }
-  ]
+  "scopes": [],
+  "role-templates": []
 }

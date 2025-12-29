@@ -1,14 +1,13 @@
 {
   "name": "sap-ewm-stock-lookup-app",
   "version": "1.0.0",
-  "description": "App Router for EWM Stock Lookup",
   "engines": {
     "node": ">=20"
   },
-  "scripts": {
-    "start": "node node_modules/@sap/approuter/approuter.js"
-  },
   "dependencies": {
     "@sap/approuter": "^14"
+  },
+  "scripts": {
+    "start": "node node_modules/@sap/approuter/approuter.js"
   }
 }

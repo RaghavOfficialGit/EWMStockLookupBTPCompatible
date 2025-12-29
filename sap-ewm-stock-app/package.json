@@ -16,24 +16,15 @@
   },
   "scripts": {
     "start": "cds-serve",
-    "watch": "cds watch --profile hybrid",
+    "watch": "cds watch",
     "build": "cds build --production"
   },
   "cds": {
     "requires": {
-      "db": false,
       "EWM_HMF": {
         "kind": "rest",
         "credentials": {
           "destination": "EWM_HMF"
-        }
-      },
-      "auth": {
-        "[production]": {
-          "strategy": "JWT"
-        },
-        "[development]": {
-          "strategy": "dummy"
         }
       }
     }
