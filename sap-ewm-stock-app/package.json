@@ -9,6 +9,9 @@
   },
   "dependencies": {
     "@sap/cds": "^9",
+    "@sap-cloud-sdk/http-client": "^3",
+    "@sap-cloud-sdk/connectivity": "^3",
+    "@sap-cloud-sdk/resilience": "^3",
     "express": "^4"
   },
   "devDependencies": {
