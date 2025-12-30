@@ -10,8 +10,8 @@ build-parameters:
   before-all:
     - builder: custom
       commands:
-        - npm install --production
-        - npx cds build --production
+        - npm install
+        - npm run build
 
 modules:
   - name: sap-ewm-stock-lookup-srv
