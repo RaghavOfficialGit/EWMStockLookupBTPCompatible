@@ -10,6 +10,7 @@ build-parameters:
   before-all:
     - builder: custom
       commands:
+        - rm -rf node_modules
         - npm install
         - npm run build
 
