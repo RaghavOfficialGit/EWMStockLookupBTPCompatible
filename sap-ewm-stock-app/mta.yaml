@@ -10,7 +10,7 @@ build-parameters:
   before-all:
     - builder: custom
       commands:
-        - npm ci
+        - npm install --production
         - npx cds build --production
 
 modules:
@@ -21,7 +21,7 @@ modules:
       buildpack: nodejs_buildpack
       memory: 256M
     build-parameters:
-      builder: npm-ci
+      builder: npm
     provides:
       - name: srv-api
         properties:
@@ -38,7 +38,7 @@ modules:
       buildpack: nodejs_buildpack
       memory: 256M
     build-parameters:
-      builder: npm-ci
+      builder: npm
     requires:
       - name: srv-api
         group: destinations
