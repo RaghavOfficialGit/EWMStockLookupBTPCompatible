@@ -16,16 +16,27 @@
   },
   "scripts": {
     "start": "cds-serve",
-    "watch": "cds watch",
+    "watch": "cds watch --profile production",
     "build": "cds build --production"
   },
   "cds": {
     "requires": {
+      "db": false,
       "EWM_HMF": {
         "kind": "rest",
         "credentials": {
           "destination": "EWM_HMF"
         }
+      }
+    },
+    "[development]": {
+      "requires": {
+        "db": false
+      }
+    },
+    "[production]": {
+      "requires": {
+        "db": false
       }
     }
   },

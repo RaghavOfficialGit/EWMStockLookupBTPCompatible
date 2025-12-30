@@ -1,5 +1,17 @@
 {
   "odata": {
     "version": "v4"
+  },
+  "requires": {
+    "db": false,
+    "[development]": {
+      "db": false
+    },
+    "[production]": {
+      "db": false
+    }
+  },
+  "features": {
+    "in_memory_db": false
   }
 }
