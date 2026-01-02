@@ -1,6 +1,12 @@
 const cds = require('@sap/cds');
+const { executeHttpRequest } = require('@sap-cloud-sdk/http-client');
+const { getDestination } = require('@sap-cloud-sdk/connectivity');
 
+// SAP EWM API endpoint path
 const EWM_API_PATH = '/sap/opu/odata4/sap/api_whse_physstockprod/srvd_a2x/sap/whsephysicalstockproducts/0001/WarehousePhysicalStockProducts';
+
+// BTP Destination name
+const DESTINATION_NAME = 'HMF_2023_HTTPS';
 
 /**
  * Get allowed stock types from user's JWT token attributes
@@ -8,7 +14,6 @@ const EWM_API_PATH = '/sap/opu/odata4/sap/api_whse_physstockprod/srvd_a2x/sap/wh
  * @returns {string[]} Array of allowed stock types
  */
 function getAllowedStockTypes(req) {
-    // Get StockType attribute from user's JWT token
     const user = req.user;
     
     if (!user) {
@@ -16,8 +21,7 @@ function getAllowedStockTypes(req) {
         return [];
     }
     
-    // Get stock types from user attributes
-    // In XSUAA, attributes are available via user.attr
+    // Get stock types from user attributes (from XSUAA JWT token)
     const stockTypes = user.attr?.StockType || [];
     
     console.log('[StockService] User:', user.id);
@@ -42,22 +46,18 @@ function buildFilter(filters, allowedStockTypes) {
     
     // Handle EWMStockType filter with authorization check
     if (filters.EWMStockType) {
-        // User requested specific stock type - verify they have access
         if (allowedStockTypes.includes(filters.EWMStockType)) {
             conditions.push(`EWMStockType eq '${filters.EWMStockType}'`);
         } else {
-            // User requested stock type they don't have access to
             console.log('[StockService] Access denied to stock type:', filters.EWMStockType);
-            return null; // Signal access denied
+            return null;
         }
     } else if (allowedStockTypes.length > 0) {
-        // No stock type filter - restrict to allowed types
         const stockTypeConditions = allowedStockTypes
             .map(st => `EWMStockType eq '${st}'`)
             .join(' or ');
         conditions.push(`(${stockTypeConditions})`);
     } else {
-        // No allowed stock types - deny access
         return null;
     }
     
@@ -83,9 +83,7 @@ function parseFilters(query) {
 
 module.exports = cds.service.impl(async function() {
     const { WarehousePhysicalStock } = this.entities;
-    const ewm = await cds.connect.to('EWM_HMF');
 
-    // Enforce authorization on READ
     this.on('READ', WarehousePhysicalStock, async (req) => {
         // Get user's allowed stock types
         const allowedStockTypes = getAllowedStockTypes(req);
@@ -109,39 +107,89 @@ module.exports = cds.service.impl(async function() {
             return;
         }
 
-        let url = `${EWM_API_PATH}?$count=true&$top=${top}&$skip=${skip}`;
-        if (filter) url += `&$filter=${encodeURIComponent(filter)}`;
+        // Build query parameters
+        const queryParams = new URLSearchParams({
+            '$count': 'true',
+            '$top': String(top),
+            '$skip': String(skip)
+        });
         
-        console.log('[StockService] API URL:', url);
+        if (filter) {
+            queryParams.append('$filter', filter);
+        }
+
+        const fullUrl = `${EWM_API_PATH}?${queryParams.toString()}`;
+        console.log('[StockService] Calling API:', fullUrl);
 
         try {
-            const res = await ewm.send({ 
-                method: 'GET', 
-                path: url, 
-                headers: { Accept: 'application/json' } 
+            // Get destination using SAP Cloud SDK
+            console.log('[StockService] Resolving destination:', DESTINATION_NAME);
+            const destination = await getDestination({ destinationName: DESTINATION_NAME });
+            
+            if (!destination) {
+                console.error('[StockService] Destination not found:', DESTINATION_NAME);
+                req.error(502, `Destination '${DESTINATION_NAME}' not found or not accessible`);
+                return;
+            }
+            
+            console.log('[StockService] Destination resolved successfully');
+
+            // Execute HTTP request using SAP Cloud SDK
+            const response = await executeHttpRequest(destination, {
+                method: 'GET',
+                url: fullUrl,
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
             });
+
+            console.log('[StockService] API response status:', response.status);
+
+            if (response.status === 200 && response.data) {
+                const data = response.data.value || [];
+                const totalCount = response.data['@odata.count'] || data.length;
+                
+                console.log('[StockService] Records:', data.length, 'Total:', totalCount);
+
+                const result = data.map((item, i) => ({
+                    ID: `${item.Product}_${item.EWMWarehouse}_${item.EWMStorageBin}_${skip + i}`,
+                    Product: item.Product || '',
+                    EWMWarehouse: item.EWMWarehouse || '',
+                    EWMStockType: item.EWMStockType || '',
+                    Batch: item.Batch || '',
+                    HandlingUnitNumber: item.HandlingUnitNumber || '',
+                    EWMStorageBin: item.EWMStorageBin || '',
+                    EWMStockQuantityInBaseUnit: parseFloat(item.EWMStockQuantityInBaseUnit) || 0,
+                    EWMStockQuantityBaseUnit: item.EWMStockQuantityBaseUnit || ''
+                }));
+                
+                result.$count = totalCount;
+                console.log('[StockService] Returning', result.length, 'records');
+                return result;
+            }
             
-            const data = res?.value || (Array.isArray(res) ? res : []);
+            req.error(502, 'Unexpected API response');
             
-            const result = data.map((item, i) => ({
-                ID: `${item.Product}_${item.EWMWarehouse}_${skip + i}`,
-                Product: item.Product || '',
-                EWMWarehouse: item.EWMWarehouse || '',
-                EWMStockType: item.EWMStockType || '',
-                Batch: item.Batch || '',
-                HandlingUnitNumber: item.HandlingUnitNumber || '',
-                EWMStorageBin: item.EWMStorageBin || '',
-                EWMStockQuantityInBaseUnit: parseFloat(item.EWMStockQuantityInBaseUnit) || 0,
-                EWMStockQuantityBaseUnit: item.EWMStockQuantityBaseUnit || ''
-            }));
+        } catch (error) {
+            console.error('[StockService] Error:', error.message);
             
-            result.$count = res?.['@odata.count'] || data.length;
-            console.log('[StockService] Returning', result.length, 'records');
-            return result;
-            
-        } catch (e) {
-            console.error('[StockService] API Error:', e.message);
-            req.error(e.code === 401 ? 401 : 500, e.message);
+            if (error.response) {
+                const status = error.response.status;
+                const message = error.response.data?.error?.message?.value || error.message;
+                
+                if (status === 401 || status === 403) {
+                    req.error(401, 'Authentication failed. Check destination credentials.');
+                } else if (status === 404) {
+                    req.error(404, 'API endpoint not found.');
+                } else {
+                    req.error(status, `SAP API Error: ${message}`);
+                }
+            } else if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+                req.error(503, 'Unable to connect to SAP system. Check destination configuration.');
+            } else {
+                req.error(500, `Internal error: ${error.message}`);
+            }
         }
     });
 });

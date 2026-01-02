@@ -9,9 +9,10 @@
   },
   "dependencies": {
     "@sap/cds": "^9",
-    "@sap-cloud-sdk/http-client": "^3",
     "@sap-cloud-sdk/connectivity": "^3",
+    "@sap-cloud-sdk/http-client": "^3",
     "@sap-cloud-sdk/resilience": "^3",
+    "@sap-cloud-sdk/util": "^3",
     "express": "^4"
   },
   "devDependencies": {
@@ -25,10 +26,10 @@
   "cds": {
     "requires": {
       "db": false,
-      "EWM_HMF": {
+      "HMF_2023_HTTPS": {
         "kind": "rest",
         "credentials": {
-          "destination": "EWM_HMF"
+          "destination": "HMF_2023_HTTPS"
         }
       }
     },

@@ -4,6 +4,12 @@
   },
   "requires": {
     "db": false,
+    "HMF_2023_HTTPS": {
+      "kind": "rest",
+      "credentials": {
+        "destination": "HMF_2023_HTTPS"
+      }
+    },
     "[development]": {
       "db": false
     },
